@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Hub</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --card: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #22d3ee;
+      --chip: #0b3b4a;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #1e293b 0%, var(--bg) 45%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem;
+    }
+
+    header {
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #0f172a 10%, #1e293b 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem;
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+    }
+
+    p { margin: 0; color: var(--muted); }
+
+    .toolbar {
+      margin-top: 1rem;
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: 1fr;
+    }
+
+    .search {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .category {
+      margin-top: 1.2rem;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(17, 24, 39, 0.8);
+      overflow: hidden;
+    }
+
+    .category h2 {
+      margin: 0;
+      padding: 0.9rem 1rem;
+      font-size: 1.15rem;
+      background: rgba(15, 23, 42, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .grid {
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid #2f3f54;
+      border-radius: 12px;
+      padding: 0.8rem;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.35;
+    }
+
+    .chip {
+      align-self: flex-start;
+      font-size: 0.78rem;
+      color: #67e8f9;
+      background: var(--chip);
+      border: 1px solid #155e75;
+      padding: 0.2rem 0.45rem;
+      border-radius: 999px;
+    }
+
+    .hidden { display: none !important; }
+
+    .empty {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      color: var(--muted);
+      margin-top: 1rem;
+      background: rgba(2, 6, 23, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>🎮 Game Hub</h1>
+      <p>Games are grouped by type (Shooter, Exploration, Puzzle, Racing, etc.) so you can browse quickly.</p>
+      <div class="toolbar">
+        <input id="search" class="search" type="search" placeholder="Search any game name..." />
+        <div class="meta">
+          <span id="totalCount"></span>
+          <span>•</span>
+          <span id="visibleCount"></span>
+        </div>
+      </div>
+    </header>
+
+    <section id="catalog"></section>
+    <div id="empty" class="empty hidden">No games match your search.</div>
+  </main>
+
+  <script>
+    const catalog = {
+      "Shooter Games": [
+        "Krunker",
+        "Shell Shockers",
+        "Bullet Force",
+        "Forward Assault",
+        "Mini Royale: Nations"
+      ],
+      "Exploration / Adventure Games": [
+        "Minecraft Classic",
+        "A Dark Room",
+        "Spelunky (Classic)",
+        "Treasure Arena",
+        "ZombsRoyale.io (exploration + battle)"
+      ],
+      "Action / Platformer Games": [
+        "Run 3",
+        "Vex 3",
+        "Vex 5",
+        "Super Smash Flash 2",
+        "Fireboy and Watergirl"
+      ],
+      "Puzzle / Logic Games": [
+        "2048",
+        "Sudoku",
+        "Chess",
+        "Tetris",
+        "Minesweeper"
+      ],
+      "Racing Games": [
+        "Drift Hunters",
+        "Madalin Stunt Cars 2",
+        "Moto X3M",
+        "Burnin' Rubber 5 XS",
+        "Top Speed Racing 3D"
+      ],
+      "Sports Games": [
+        "Basketball Stars",
+        "Soccer Skills Champions League",
+        "Football Legends",
+        "8 Ball Pool",
+        "Tennis Masters"
+      ],
+      "Strategy / Management Games": [
+        "Bloons Tower Defense",
+        "Kingdom Rush",
+        "Goodgame Empire",
+        "Forge of Empires",
+        "The Final Earth 2"
+      ],
+      "Multiplayer .io Games": [
+        "Agar.io",
+        "Slither.io",
+        "Diep.io",
+        "Surviv.io",
+        "Skribbl.io"
+      ],
+      "Horror / Survival Games": [
+        "Dark Deception (Demo)",
+        "The House 2",
+        "Dead Zed",
+        "Five Nights at Freddy's Web Fan Games",
+        "Zombie Derby Pixel Survival"
+      ]
+    };
+
+    const catalogEl = document.getElementById("catalog");
+    const searchEl = document.getElementById("search");
+    const totalCountEl = document.getElementById("totalCount");
+    const visibleCountEl = document.getElementById("visibleCount");
+    const emptyEl = document.getElementById("empty");
+
+    function renderCatalog() {
+      catalogEl.innerHTML = "";
+      let total = 0;
+
+      Object.entries(catalog).forEach(([category, games]) => {
+        total += games.length;
+
+        const section = document.createElement("section");
+        section.className = "category";
+        section.dataset.category = category;
+
+        const title = document.createElement("h2");
+        title.textContent = `${category} (${games.length})`;
+
+        const grid = document.createElement("div");
+        grid.className = "grid";
+
+        games.forEach((game) => {
+          const card = document.createElement("article");
+          card.className = "card";
+          card.dataset.name = game.toLowerCase();
+
+          const name = document.createElement("h3");
+          name.textContent = game;
+
+          const chip = document.createElement("span");
+          chip.className = "chip";
+          chip.textContent = category;
+
+          card.append(name, chip);
+          grid.appendChild(card);
+        });
+
+        section.append(title, grid);
+        catalogEl.appendChild(section);
+      });
+
+      totalCountEl.textContent = `Total games: ${total}`;
+      visibleCountEl.textContent = `Visible: ${total}`;
+    }
+
+    function applySearch() {
+      const q = searchEl.value.trim().toLowerCase();
+      const categories = [...document.querySelectorAll(".category")];
+      let visible = 0;
+
+      categories.forEach((category) => {
+        const cards = [...category.querySelectorAll(".card")];
+        let shownInCategory = 0;
+
+        cards.forEach((card) => {
+          const isMatch = card.dataset.name.includes(q);
+          card.classList.toggle("hidden", !isMatch);
+          if (isMatch) shownInCategory += 1;
+        });
+
+        category.classList.toggle("hidden", shownInCategory === 0);
+        visible += shownInCategory;
+      });
+
+      visibleCountEl.textContent = `Visible: ${visible}`;
+      emptyEl.classList.toggle("hidden", visible !== 0);
+    }
+
+    renderCatalog();
+    searchEl.addEventListener("input", applySearch);
+  </script>
+</body>
+</html>
