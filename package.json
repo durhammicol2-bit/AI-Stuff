@@ -1,0 +1,9 @@
+{
+  "name": "sms-client-preview",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Node.js static preview server for SMS client HTML",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
